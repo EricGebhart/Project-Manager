@@ -83,11 +83,18 @@ Configuration file example:
 ; this one is a github repository, with deployment to a local directory.
 [dotfiles]
   type=Project
-  repository=ssh://git@github.com/EricGebhart/dotfiles/
+  repository=ssh://git@github.com/EricGebhart/dotfiles
   devHost = localhost
   prodHost = localhost
   devPath = /Users/eric/
   prodPath = /Users/eric/
+  
+[PM]
+  type=Project
+  repository=ssh://git@github.com/EricGebhart/Project-Manager
+  devHost = localhost
+  prodHost = localhost
+  devPath = /Users/eric/bin
 </pre>
  
 That's it for now. It's working mostly, but has a ways to go. Application core could use a little more flexibility but
