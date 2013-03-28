@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-   This is a set of classes to manage local and remote software projects, with and
-   without revision control. Supplementing a local git repository for projects that
-   have no revision control.
+   This is a set of classes to create Command line programs with logging, config
+   files, and nice command line parsing. An application built with these classes
+   can have a default log file, default config file, and a set of arguments
+   built to manage them. The default section and named section of the config file
+   are combined, then the CLI arguments are layed on top. The parent application can
+   process the arguments as it sees fit.
 """
 
 __author__ = 'Eric Gebhart <e.a.gebhart@gmail.com>'
