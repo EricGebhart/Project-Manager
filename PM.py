@@ -104,54 +104,6 @@ class PM(applicationCore):
         self.host_path = None
         self.GitBase = None
         self.gitlocal = None
-        project_base = self.config['default']['ProjectBase']
-        project_root = self.config['default']['ProjectRoot']
-        self.project_root = os.path.join(project_base, project_root)
-        self.excludes = []
-
-        if 'file' in self.args:
-            current_directory = os.path.abspath('')
-            self.file = self.args.file
-
-        if 'p' in self.args:
-            self.name = self.args.p
-
-        if 'new' in self.args:
-            self.name = self.args.new
-
-        # Directory is the local location of the project.
-        # The default is the name of the project.
-        if 'directory' in self.args and self.args.directory is not None:
-            self.directory = self.args.directory
-        else:
-            self.directory = self.name
-
-        self.find_working_project()
-
-        self.logger.debug('%s : %s' % (self.name, self.directory))
-
-        # if a filename was given, get it's relative path in the project.
-        if self.file:
-            self.set_file(current_directory)
-
-        # Try to load the Project manager's config file and get
-        # the default settings and project definitions.
-        self.set_project_config()
-
-        # be ready to create or use a local git.
-        self.set_local_git(project_base)
-
-        #Get the open command if we have one.
-        self.set_opencmd()
-
-        #get the excludes for the rsync.
-        self.setup_excludes()
-
-        # set up the rsync connection
-        self.rsync = rsync(self.cmd, self.logger,
-                           self.host_path, self.host,
-                           self.abs_project_path,
-                           self.excludes)
 
         self.months = {
             'Jan': 1,
@@ -530,6 +482,63 @@ class PM(applicationCore):
         #ready to go.
         #This is where we do what we need based on the config file and arguments.
 
+        # Everything we need should be in self.ARGS. Except for our project
+        # section. We can ask our super to merge the config section in as
+        # soon as we know it's name.
+
+        project_base = self.config['default']['ProjectBase']
+        project_root = self.config['default']['ProjectRoot']
+        self.project_root = os.path.join(project_base, project_root)
+        self.excludes = []
+
+        if 'file' in self.args:
+            current_directory = os.path.abspath('')
+            self.file = self.args.file
+
+        if 'p' in self.args:
+            self.name = self.args.p
+
+        if 'new' in self.args:
+            self.name = self.args.new
+
+        # Directory is the local location of the project.
+        # The default is the name of the project.
+        if 'directory' in self.args and self.args.directory is not None:
+            self.directory = self.args.directory
+        else:
+            self.directory = self.name
+
+        self.find_working_project()
+
+        self.logger.debug('%s : %s' % (self.name, self.directory))
+
+        # We should know our project name by now. Merge the section into
+        # our ARGS dictionary.
+        self.merge_section(self.name)
+
+        # if a filename was given, get it's relative path in the project.
+        if self.file:
+            self.set_file(current_directory)
+
+        # Try to load the Project manager's config file and get
+        # the default settings and project definitions.
+        self.set_project_config()
+
+        # be ready to create or use a local git.
+        self.set_local_git(project_base)
+
+        #Get the open command if we have one.
+        self.set_opencmd()
+
+        #get the excludes for the rsync.
+        self.setup_excludes()
+
+        # set up the rsync connection
+        self.rsync = rsync(self.cmd, self.logger,
+                           self.host_path, self.host,
+                           self.abs_project_path,
+                           self.excludes)
+
         # Need some debug for understanding???? Here it is.
         #self.logger.info(self.args)
         #self.logger.info(self.config)
@@ -542,7 +551,8 @@ class PM(applicationCore):
 
         # surround it all with a try to handle errors nicely.
         #try:
-        self.args.func()
+        if 'func' in self.args:
+            self.args.func()
         #    return 0
         #except Exception as e:
         #    self.logger.error(e)
