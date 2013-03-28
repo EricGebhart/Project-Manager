@@ -9,10 +9,6 @@
 __author__ = 'Eric Gebhart <e.a.gebhart@gmail.com>'
 __support__ = 'Eric Gebhart <e.a.gebhart@gmail.com>'
 __version__ = '$Revision: 1 $'[11:-2]
-__application__ = 'PM'    # we don't have a name yet...
-__default_config__ = '.PMrc'  # we don't have a name yet...
-__default_log__ = '.PM.log'   # we don't have a name yet...
-__project_config_file__ = '.PMrc.project'
 
 no_execute = None   # so we can run and not do anything.
 
@@ -25,14 +21,18 @@ from application.applogger import applicationlogger
 
 class applicationCore():
 
-    def __init__(self, prefix_chars='-', prog=__application__, description=__doc__, epilog=''):
+    def __init__(self, prefix_chars='-', epilog=''):
 
         self.applogger = applicationlogger()
         self.logger = self.applogger.get_logger()
         self.cmd = syscall(self.logger)
 
         self.prefix_chars = prefix_chars
-        self.description = description
+        if  self.__doc__:
+            self.description = self.__doc__
+        else:
+            self.description = __doc__
+
         self.epilog = epilog   # put closing help paragraph here.
         self.formatter_class = argparse.RawDescriptionHelpFormatter
 
@@ -40,7 +40,7 @@ class applicationCore():
         self.stdio_hdlr = None
         self.config_sections = []
 
-        self.config_file = os.path.join(os.getenv('HOME'), __default_config__)
+        self.config_file = os.path.join(os.getenv('HOME'), self.default_config)
 
         # 2 layer ordered lists of argument objects. - for creating parse groups and screen panels.
         self.config_groups = OrderedDict()
@@ -64,7 +64,7 @@ class applicationCore():
     def create_parser(self):
         # create the top-level parser
         #  parents=[self.conf_parser],
-        self.main_parser = argparse.ArgumentParser(prog=__application__,
+        self.main_parser = argparse.ArgumentParser(prog=self.application,
                                                    description=self.description,
                                                    epilog=self.epilog,
                                                    prefix_chars=self.prefix_chars)
@@ -77,8 +77,8 @@ class applicationCore():
         self.main_parser.add_argument('-quiet', action='store_const', const=1,
                                       help='Silent running', default=None)
         self.main_parser.add_argument('-log', help='Log file, defaults to %s' %
-                                      __default_log__,
-                                      default=__default_log__)
+                                      self.default_log,
+                                      default=self.default_log)
 
         # These are args for the first parse of the command line,
         # add them to the main parser as well, so they will show up in help.
@@ -227,11 +227,13 @@ class applicationCore():
 
                 self.config_sections = ['default']
                 for name in self.config.sections():
+                    if name == 'default':
+                        continue
                     self.config_sections.append(name)
 
             else:
                 # don't die if the default config file is missing.
-                if config_file != __default_config__:
+                if config_file != self.default_config:
                     self.applogger.error("Could not read configuration file %s" %
                                          config_file)
 

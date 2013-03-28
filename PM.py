@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-   This is a set of classes to manage local and remote software projects, with and
-   without revision control. Supplementing a local git repository for projects that
-   have no revision control.
+   This is a project manager to manage code deployed at remote
+   and local hosts, with and without Git. Supplementing local git
+   repository for projects without revision control.
 """
 
 __author__ = 'Eric Gebhart <e.a.gebhart@gmail.com>'
@@ -81,12 +81,19 @@ class Project_config ():
 
 
 class PM(applicationCore):
-    """Sync project to and from a remote host"""
-    """This is Project Manager application, It syncs with remote hosts, and git.
-        It uses a local git when the project has no real revision control which
-        seems to be common for web applications"""
+    """
+    This is a project manager to manage code deployed at remote
+    and local hosts, with and without Git. Supplementing local git
+    repository for projects without revision control.
+    """
 
     def __init__(self):
+
+        self.doc = __doc__
+        self.application = __application__
+        self.default_config = __default_config__
+        self.default_log = __default_log__
+
         super().__init__()
 
         self.project = None         # project name
